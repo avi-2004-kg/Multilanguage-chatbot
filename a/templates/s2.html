@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot with TTS</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="chat-container">
+        <h2>Multilingual Chatbot</h2>
+        <div id="chat-box"></div>
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <select id="language">
+            <option value="en">English</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="hi">Hindi</option>
+        </select>
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        function sendMessage() {
+            let userMessage = document.getElementById("user-input").value;
+            let language = document.getElementById("language").value;
+            let chatBox = document.getElementById("chat-box");
+            
+            chatBox.innerHTML += `<div class='user-message'>${userMessage}</div>`;
+            document.getElementById("user-input").value = "";
+            
+            fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userMessage, language: language })
+            })
+            .then(response => response.json())
+            .then(data => {
+                chatBox.innerHTML += `<div class='bot-message'>${data.response}</div>`;
+                if (data.audio) {
+                    let audio = new Audio("/audio");
+                    audio.play();
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>
